@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://www.piratageauc.tech/api';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
 export default function AddGalleryItem() {
     const [formData, setFormData] = useState({
@@ -23,16 +23,10 @@ export default function AddGalleryItem() {
         setStatus(null);
 
         try {
-            const res = await fetch(`${API_URL}/gallery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+            await addDoc(collection(db, 'gallery'), {
+                ...formData,
+                createdAt: new Date().toISOString()
             });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Failed to add gallery item');
-            }
 
             setStatus({ type: 'success', message: 'Photo successfully added to gallery!' });
             setFormData({

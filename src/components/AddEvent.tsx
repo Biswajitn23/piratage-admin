@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface Speaker {
     name: string;
@@ -7,8 +9,16 @@ interface Speaker {
     avatar: string;
 }
 
-// Use production API url when deployed, otherwise localhost for local testing.
-const API_URL = import.meta.env.VITE_API_URL || 'https://www.piratageauc.tech/api';
+// Helper to compute status if auto
+function getAutoStatus(date: string) {
+    const now = new Date();
+    const eventDate = new Date(date);
+    if (isNaN(eventDate.getTime())) return 'past';
+    const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // 2h default
+    if (now < eventDate) return 'upcoming';
+    if (now >= eventDate && now <= endDate) return 'ongoing';
+    return 'past';
+}
 
 export default function AddEvent() {
     const [formData, setFormData] = useState({
@@ -60,16 +70,29 @@ export default function AddEvent() {
                 finalDate += 'T10:00:00.000Z'; // default 10:00 AM UTC if missing time
             }
 
-            const res = await fetch(`${API_URL}/events`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, date: finalDate, speakers: formData.type === 'Speaker Session' ? speakers : [] })
-            });
+            // Compute status
+            const computedStatus = formData.status === 'auto' ? getAutoStatus(finalDate) : formData.status;
 
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Failed to add event');
-            }
+            const eventId = formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+
+            const eventData = {
+                id: eventId,
+                title: formData.title,
+                slug: formData.slug || eventId,
+                date: finalDate,
+                type: formData.type,
+                status: computedStatus,
+                coverImage: formData.coverImage,
+                description: formData.description,
+                location: formData.location,
+                venue: formData.venue,
+                registrationLink: formData.registrationLink,
+                highlightScene: formData.highlightScene,
+                speakers: formData.type === 'Speaker Session' ? speakers : [],
+                gallery: []
+            };
+
+            await setDoc(doc(db, 'events', eventId), eventData);
 
             setStatus({ type: 'success', message: 'Event successfully created!' });
             setFormData({

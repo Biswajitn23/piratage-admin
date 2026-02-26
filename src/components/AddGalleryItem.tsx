@@ -25,7 +25,8 @@ export default function AddGalleryItem() {
         try {
             await addDoc(collection(db, 'gallery'), {
                 ...formData,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                created_at: new Date().toISOString()
             });
 
             setStatus({ type: 'success', message: 'Photo successfully added to gallery!' });

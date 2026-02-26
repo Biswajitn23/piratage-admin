@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://piratageauc.tech/api';
 export default function AddGalleryItem() {
     const [formData, setFormData] = useState({
         title: '',
-        category: 'Scrims',
+        category: 'Hackathons',
         media: '',
         orientation: 'landscape',
         description: ''
@@ -37,7 +37,7 @@ export default function AddGalleryItem() {
             setStatus({ type: 'success', message: 'Photo successfully added to gallery!' });
             setFormData({
                 title: '',
-                category: 'Scrims',
+                category: 'Hackathons',
                 media: '',
                 orientation: 'landscape',
                 description: ''
@@ -69,9 +69,9 @@ export default function AddGalleryItem() {
                     <div className="col">
                         <label>Category</label>
                         <select name="category" value={formData.category} onChange={handleChange}>
-                            <option value="Scrims">Scrims</option>
-                            <option value="Field Ops">Field Ops</option>
-                            <option value="Labs">Labs</option>
+                            <option value="Hackathons">Hackathons</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Speaker Session">Speaker Session</option>
                             <option value="General">General</option>
                         </select>
                     </div>

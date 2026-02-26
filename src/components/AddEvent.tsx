@@ -8,7 +8,7 @@ interface Speaker {
 }
 
 // Use production API url when deployed, otherwise localhost for local testing.
-const API_URL = import.meta.env.VITE_API_URL || 'https://piratageauc.tech/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://www.piratageauc.tech/api';
 
 export default function AddEvent() {
     const [formData, setFormData] = useState({
